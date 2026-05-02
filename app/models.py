@@ -49,7 +49,9 @@ class User(UserMixin, db.Model):
     display_name = db.Column(db.String(128), nullable=False)
     avatar_initials = db.Column(db.String(3), nullable=False)
     avatar_color = db.Column(db.String(7), nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
+    password_hash = db.Column(db.String(256), nullable=True)  # nullable for Google OAuth users
+    google_id = db.Column(db.String(256), unique=True, nullable=True)  # Google OAuth subject ID
+    has_seen_tour = db.Column(db.Boolean, default=False)  # First-time user tour flag
     role = db.Column(db.String(20), default='member') # admin/member/viewer
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
@@ -116,6 +118,7 @@ class Task(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
     assignee_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    parent_task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)  # AI-generated subtask link
     status = db.Column(db.String(50), default='backlog') # backlog/in_progress/in_review/done
     priority = db.Column(db.String(50), default='medium') # low/medium/high/critical
     due_date = db.Column(db.Date)
@@ -129,6 +132,7 @@ class Task(db.Model):
     assignee = relationship('User', foreign_keys=[assignee_id], backref='assigned_tasks')
     reporter = relationship('User', foreign_keys=[reporter_id], backref='reported_tasks')
     comments = relationship('TaskComment', backref='task', lazy='dynamic')
+    subtasks = relationship('Task', backref=db.backref('parent_task', remote_side='Task.id'), lazy='dynamic')
 
     def is_overdue(self):
         if self.due_date and self.status != 'done':
@@ -203,3 +207,17 @@ class ActivityLog(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship('User')
+
+
+class WhitelistInvitation(db.Model):
+    """Admin-managed invite whitelist for Google OAuth onboarding."""
+    __tablename__ = 'whitelist_invitation'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
+    invited_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    is_claimed = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    project = relationship('Project')
+    inviter = relationship('User')
