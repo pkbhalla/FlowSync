@@ -79,9 +79,11 @@ def google_callback():
         login_user(user, remember=True)
         return redirect(url_for('dashboard.index'))
 
-    # New user — check whitelist
+    # New user — check whitelist OR if it's the very first user (bootstrap)
+    is_first_user = User.query.count() == 0
     invite = WhitelistInvitation.query.filter_by(email=email, is_claimed=False).first()
-    if not invite:
+    
+    if not invite and not is_first_user:
         flash('Unauthorized: Ask your admin for an invite.', 'error')
         return redirect(url_for('auth.login'))
 
@@ -94,16 +96,17 @@ def google_callback():
         avatar_initials=initials,
         avatar_color=_random_color(),
         google_id=google_id,
-        role='member',
+        role='admin' if is_first_user else 'member',
     )
     db.session.add(user)
     db.session.flush()  # get user.id
 
-    # Link to invited project
-    pm = ProjectMember(project_id=invite.project_id, user_id=user.id, role='member')
-    db.session.add(pm)
+    if invite:
+        # Link to invited project
+        pm = ProjectMember(project_id=invite.project_id, user_id=user.id, role='member')
+        db.session.add(pm)
+        invite.is_claimed = True
 
-    invite.is_claimed = True
     db.session.commit()
 
     login_user(user, remember=True)
