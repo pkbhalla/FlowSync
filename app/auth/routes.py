@@ -110,6 +110,41 @@ def google_callback():
     flash(f'Welcome to FlowSync, {name}!', 'success')
     return redirect(url_for('dashboard.index'))
 
+# ---------- Register ----------
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        name = request.form.get('display_name')
+        
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered', 'error')
+            return redirect(url_for('auth.register'))
+            
+        initials = ''.join([w[0] for w in name.split()[:2]]).upper() or 'U'
+        
+        user = User(
+            email=email,
+            username=email.split('@')[0],
+            display_name=name,
+            avatar_initials=initials,
+            avatar_color=_random_color(),
+            role='admin'
+        )
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+        
+        login_user(user, remember=True)
+        flash('Workspace created! You are now the admin.', 'success')
+        return redirect(url_for('dashboard.index'))
+        
+    has_google = current_app.config.get('GOOGLE_CLIENT_ID') is not None
+    return render_template('auth/register.html', has_google=has_google)
+
 # ---------- Logout ----------
 @auth_bp.route('/logout')
 def logout():

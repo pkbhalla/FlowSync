@@ -7,8 +7,10 @@ from app.dashboard import dashboard_bp
 from app.models import Task, Project, ActivityLog, User, db
 
 @dashboard_bp.route('/')
-@login_required
 def index():
+    if not current_user.is_authenticated:
+        return render_template('landing.html')
+        
     now = datetime.now().date()
     start_of_week = now - timedelta(days=now.weekday())
 
