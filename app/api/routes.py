@@ -55,7 +55,13 @@ def ai_breakdown_task():
     task_id = data.get('task_id')
     if not task_id:
         return jsonify({'error': 'task_id required'}), 400
+        
     task = Task.query.get_or_404(task_id)
+    
+    # Check authorization
+    if task.project not in current_user.projects:
+        return jsonify({'error': 'Unauthorized access to task'}), 403
+        
     subtask_defs = generate_subtasks(task.title, task.description or '')
     if not subtask_defs:
         return jsonify({'error': 'AI not configured or generation failed'}), 503
@@ -85,12 +91,24 @@ def ai_breakdown_task():
 def ai_summarize_chat(channel_id):
     """Summarize the last 50 messages in a channel using Gemini."""
     from app.ai import summarize_chat
+    from sqlalchemy.orm import joinedload
+    
     channel = Channel.query.get_or_404(channel_id)
-    msgs = channel.messages.order_by(Message.created_at.desc()).limit(50).all()
+    
+    # Check authorization
+    if not any(c.id == channel_id for c in current_user.channels):
+        return jsonify({'error': 'Unauthorized access to channel'}), 403
+        
+    msgs = (channel.messages
+            .options(joinedload(Message.sender))
+            .order_by(Message.created_at.desc())
+            .limit(50).all())
     msgs.reverse()
+    
     message_list = [{'sender': m.sender.display_name, 'content': m.content} for m in msgs]
     if not message_list:
         return jsonify({'summary': 'No messages in this channel.'})
+        
     summary = summarize_chat(message_list)
     return jsonify({'summary': summary, 'message_count': len(message_list)})
 

@@ -24,16 +24,13 @@ def generate_subtasks(task_title: str, task_description: str = '') -> list[dict]
 Task Title: {task_title}
 Task Description: {task_description or 'N/A'}
 
-Return ONLY valid JSON — an array of objects with "title" and "description" keys.
-Example: [{{"title": "...", "description": "..."}}, ...]"""
+Return ONLY valid JSON — an array of objects with "title" and "description" keys."""
     try:
-        resp = model.generate_content(prompt)
-        text = resp.text.strip()
-        # Strip markdown fences if present
-        if text.startswith('```'):
-            text = text.split('\n', 1)[1]
-            text = text.rsplit('```', 1)[0]
-        return json.loads(text)
+        resp = model.generate_content(
+            prompt,
+            generation_config=genai.GenerationConfig(response_mime_type="application/json")
+        )
+        return json.loads(resp.text.strip())
     except Exception as e:
         print(f"[AI] subtask generation error: {e}")
         return []

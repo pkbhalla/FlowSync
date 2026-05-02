@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  PROJECT_ID: promptwars-493918
+  PROJECT_ID: promptwarschennai-495105
   REGION: us-central1
   SERVICE: flowsync
 
