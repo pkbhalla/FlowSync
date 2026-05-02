@@ -1,4 +1,5 @@
 """Tests for FlowSync auth and task routes."""
+import json
 import pytest
 from app import create_app, db
 from app.models import User, Project, Task, ProjectMember
@@ -107,7 +108,6 @@ class TestTaskRoutes:
 
     def test_create_task(self, client, app):
         project_id = self._setup(client, app)
-        import json
         resp = client.post('/tasks/create', json={
             'title': 'New Task',
             'project_id': project_id,
@@ -119,7 +119,6 @@ class TestTaskRoutes:
 
     def test_delete_task_by_reporter(self, client, app):
         project_id = self._setup(client, app)
-        import json
         create_resp = client.post('/tasks/create', json={
             'title': 'Task to delete',
             'project_id': project_id,
@@ -130,8 +129,6 @@ class TestTaskRoutes:
 
     def test_delete_task_by_non_reporter_forbidden(self, client, app):
         project_id = self._setup(client, app)
-        # Create a second user and try to delete the first user's task
-        import json
         create_resp = client.post('/tasks/create', json={
             'title': 'Protected task',
             'project_id': project_id,

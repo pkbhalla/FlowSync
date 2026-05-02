@@ -1,5 +1,5 @@
 import random
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, current_user
 from authlib.integrations.flask_client import OAuth
@@ -8,6 +8,16 @@ from app.auth import auth_bp
 from app.models import User, WhitelistInvitation, ProjectMember
 
 oauth = OAuth()
+
+
+def _is_safe_redirect_url(target: str) -> bool:
+    """Return True only if the target URL is on the same host as the app."""
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return (
+        test_url.scheme in ('http', 'https')
+        and ref_url.netloc == test_url.netloc
+    )
 
 def init_oauth(app):
     """Call from create_app to register Google provider."""
@@ -39,12 +49,9 @@ def login():
             return redirect(url_for('auth.login'))
         login_user(user, remember=True)
         next_page = request.args.get('next')
-        # Prevent open-redirect: only allow relative paths within the app
-        if next_page:
-            parsed = urlparse(next_page)
-            if parsed.netloc or parsed.scheme:
-                next_page = None
-        return redirect(next_page or url_for('dashboard.index'))
+        if next_page and _is_safe_redirect_url(next_page):
+            return redirect(next_page)
+        return redirect(url_for('dashboard.index'))
     has_google = current_app.config.get('GOOGLE_CLIENT_ID') is not None
     return render_template('auth/login.html', has_google=has_google)
 

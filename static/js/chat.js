@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const timeEl = document.createElement('time');
         timeEl.className = 'message-time';
-        timeEl.dateTime = msg.created_at;
+        timeEl.setAttribute('datetime', msg.created_at);
         timeEl.textContent = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 
         headerDiv.appendChild(authorSpan);

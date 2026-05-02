@@ -20,10 +20,12 @@ def weekly_completions():
     for i in range(7, -1, -1):
         week_start = today - timedelta(days=today.weekday()) - timedelta(weeks=i)
         week_end = week_start + timedelta(days=7)
+        week_start_dt = datetime(week_start.year, week_start.month, week_start.day, tzinfo=timezone.utc)
+        week_end_dt = datetime(week_end.year, week_end.month, week_end.day, tzinfo=timezone.utc)
         count = Task.query.filter(
             Task.status == 'done',
-            Task.completed_at >= datetime.combine(week_start, datetime.min.time()),
-            Task.completed_at < datetime.combine(week_end, datetime.min.time())
+            Task.completed_at >= week_start_dt,
+            Task.completed_at < week_end_dt,
         ).count()
         labels.append(f"W{8 - i}")
         values.append(count)
