@@ -9,4 +9,4 @@
 </div>
 <div class="card"><div class="card-header"><h3 class="card-title">Team Throughput (This Month)</h3></div><div class="card-body" style="height:280px"><canvas id="throughput-chart"></canvas></div></div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/charts.js') }}"></script>{% endblock %}
+{% block scripts %}<script src="https://unpkg.com/chart.js@4.4.8/dist/chart.umd.js"></script><script src="{{ url_for('static', filename='js/charts.js') }}"></script>{% endblock %}
