@@ -17,6 +17,9 @@ def create_app(config_name='default'):
                 template_folder=os.path.join(root_path, 'app', 'templates'))
     app.config.from_object(config[config_name])
 
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
     db.init_app(app)
     login_manager.init_app(app)
 
