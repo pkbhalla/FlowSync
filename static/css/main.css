@@ -1,5 +1,4 @@
-/* === FLOWSYNC DESIGN SYSTEM === */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap');
+/* === FLOWSYNC DESIGN SYSTEM — Apple HIG Edition === */
 
 :root,[data-theme="light"]{
   --bg:#f8f7f4;--surface:#ffffff;--surface-2:#faf9f7;--surface-hover:#f3f1ed;
@@ -13,10 +12,10 @@
   --orange:#ea580c;--orange-bg:rgba(234,88,12,.08);
   --sidebar-bg:#1b1b1f;--sidebar-text:#b0aeb8;--sidebar-active:#ffffff;--sidebar-hover:rgba(255,255,255,.06);
   --sidebar-active-bg:rgba(14,124,134,.25);--sidebar-w:260px;
-  --radius:10px;--radius-sm:6px;--radius-lg:14px;--radius-full:9999px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 4px 16px rgba(0,0,0,.08);--shadow-lg:0 12px 40px rgba(0,0,0,.12);
-  --font:'Inter',system-ui,sans-serif;--font-display:'Instrument Serif',Georgia,serif;
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;--radius-full:9999px;
+  --shadow:0 4px 24px rgba(0,0,0,.04);--shadow-md:0 8px 30px rgba(0,0,0,.08);--shadow-lg:0 16px 48px rgba(0,0,0,.12);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+  --font-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif;
   --ease:cubic-bezier(.16,1,.3,1);
 }
 [data-theme="dark"]{
@@ -68,8 +67,9 @@ ul{list-style:none}
 .user-chip .icon-btn{color:var(--sidebar-text)}
 .user-chip .icon-btn:hover{color:#fff}
 
-/* ═══ TOPBAR ═══ */
-.topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
+/* ═══ TOPBAR — Glassmorphism ═══ */
+.topbar{height:56px;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;position:sticky;top:0;z-index:50}
+[data-theme="dark"] .topbar{background:rgba(28,28,32,.72)}
 .topbar-left{display:flex;align-items:center;gap:14px}
 .topbar-right{display:flex;align-items:center;gap:8px}
 .page-title{font-size:16px;font-weight:600;margin:0}
@@ -95,7 +95,7 @@ ul{list-style:none}
 .auth-card .auth-footer a{color:var(--primary);font-weight:500}
 
 /* ═══ BUTTONS ═══ */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-weight:500;font-size:13px;transition:all .18s var(--ease);border:1px solid transparent;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 18px;border-radius:999px;font-weight:500;font-size:13px;transition:all .18s var(--ease);border:1px solid transparent;white-space:nowrap}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
 .btn-primary:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
@@ -104,8 +104,8 @@ ul{list-style:none}
 .btn-ghost{color:var(--text-2)}
 .btn-ghost:hover{background:var(--surface-hover);color:var(--text)}
 .btn-danger{background:var(--error);color:#fff}
-.btn-sm{padding:5px 10px;font-size:12px}
-.icon-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);color:var(--text-2);transition:all .18s var(--ease)}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:999px}
+.icon-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-full);color:var(--text-2);transition:all .18s var(--ease)}
 .icon-btn:hover{background:var(--surface-hover);color:var(--text)}
 .icon-btn i{width:18px;height:18px}
 .btn-new-task i{width:16px;height:16px}
@@ -231,3 +231,21 @@ ul{list-style:none}
   .kpi-grid{grid-template-columns:1fr 1fr}
   .grid-2,.grid-3{grid-template-columns:1fr}
 }
+
+/* ═══ GOOGLE AUTH BUTTON ═══ */
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;background:#fff;color:#333;border:1px solid #dadce0;border-radius:999px;font-weight:500;font-size:14px;cursor:pointer;transition:all .18s}
+.btn-google:hover{background:#f7f8f8;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.btn-google:active{transform:scale(.97)}
+.btn-google svg{width:18px;height:18px}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:rgba(255,255,255,.3);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
+
+/* ═══ SHEPHERD TOUR ═══ */
+.shepherd-element{border-radius:16px!important;box-shadow:0 16px 48px rgba(0,0,0,.15)!important;border:1px solid var(--border)!important}
+.shepherd-text{font-family:var(--font)!important;font-size:14px!important;line-height:1.6!important;color:var(--text)!important}
+.shepherd-header{font-family:var(--font)!important;padding:16px 20px 8px!important}
+.shepherd-title{font-size:16px!important;font-weight:600!important}
+.shepherd-content{padding:0 20px 16px!important}
+.shepherd-footer{padding:12px 20px 16px!important}
+.shepherd-button{border-radius:999px!important;font-size:13px!important;padding:6px 16px!important}
+.shepherd-button:not(.shepherd-button-secondary){background:var(--primary)!important}

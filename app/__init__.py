@@ -20,6 +20,10 @@ def create_app(config_name='default'):
     db.init_app(app)
     login_manager.init_app(app)
 
+    # Init Google OAuth
+    from app.auth.routes import init_oauth
+    init_oauth(app)
+
     # Register blueprints
     from app.auth.routes import auth_bp
     from app.dashboard.routes import dashboard_bp
@@ -30,6 +34,8 @@ def create_app(config_name='default'):
     from app.analytics.routes import analytics_bp
     from app.api.routes import api_bp
 
+    from app.admin.routes import admin_bp
+
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(tasks_bp, url_prefix='/tasks')
@@ -38,6 +44,7 @@ def create_app(config_name='default'):
     app.register_blueprint(messages_bp, url_prefix='/messages')
     app.register_blueprint(analytics_bp, url_prefix='/analytics')
     app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
 
     with app.app_context():
         db.create_all()

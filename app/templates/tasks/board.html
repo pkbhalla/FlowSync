@@ -30,6 +30,9 @@
           {% if task.assignee %}
           <div class="avatar" style="background:{{ task.assignee.avatar_color }};width:22px;height:22px;font-size:9px" title="{{ task.assignee.display_name }}">{{ task.assignee.avatar_initials }}</div>
           {% endif %}
+          <button class="icon-btn" onclick="triggerAIBreakdown(event, {{ task.id }})" title="AI Breakdown" style="width:22px;height:22px;color:var(--purple)">
+            <i data-lucide="sparkles" style="width:12px;height:12px"></i>
+          </button>
         </div>
       </div>
       {% endfor %}
@@ -38,4 +41,28 @@
   {% endfor %}
 </div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/kanban.js') }}"></script>{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/kanban.js') }}"></script>
+<script>
+async function triggerAIBreakdown(event, taskId) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    btn.innerHTML = '<div style="width:12px;height:12px;border:2px solid var(--purple);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
+    try {
+        const res = await window.apiFetch('/api/v1/ai/breakdown-task', {
+            method: 'POST',
+            body: JSON.stringify({ task_id: taskId })
+        });
+        if(res.success) {
+            window.showToast(`AI created ${res.subtasks.length} subtasks!`);
+            setTimeout(() => location.reload(), 1500);
+        }
+    } catch(e) {
+        window.showToast('AI Breakdown failed', 'error');
+        btn.innerHTML = '<i data-lucide="sparkles" style="width:12px;height:12px"></i>';
+        if(window.lucide) window.lucide.createIcons();
+    }
+}
+</script>
+<style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+{% endblock %}

@@ -18,7 +18,12 @@
   </div>
   <div class="chat-main">
     {% if active_channel %}
-    <div class="chat-channel-header"><i data-lucide="hash" style="width:18px;height:18px;color:var(--text-3)"></i>{{ active_channel.name }}</div>
+    <div class="chat-channel-header">
+      <div class="flex items-center gap-2"><i data-lucide="hash" style="width:18px;height:18px;color:var(--text-3)"></i>{{ active_channel.name }}</div>
+      <button class="btn btn-sm" style="margin-left:auto;color:var(--purple);background:var(--purple-bg)" onclick="summarizeChat({{ active_channel.id }}, this)">
+        <i data-lucide="sparkles" style="width:14px;height:14px"></i> AI Summarize
+      </button>
+    </div>
     <div class="chat-messages" data-channel-id="{{ active_channel.id }}">
       {% for msg in messages %}
       <div class="message-item">
@@ -48,4 +53,23 @@
   </div>
 </div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/chat.js') }}"></script>{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script>
+async function summarizeChat(channelId, btn) {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Summarizing...';
+    try {
+        const res = await window.apiFetch('/api/v1/ai/summarize-chat/' + channelId);
+        if(res.summary) {
+            window.showToast('AI Summary ready', 'success');
+            alert("AI Summary:\n\n" + res.summary);
+        }
+    } catch(e) {
+        window.showToast('Summarization failed', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+    }
+}
+</script>
+{% endblock %}

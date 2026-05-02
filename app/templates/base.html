@@ -10,6 +10,7 @@
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@13.0.3/dist/css/shepherd.css"/>
   {% block head %}{% endblock %}
 </head>
 <body data-user-id="{{ current_user.id if current_user.is_authenticated else '' }}">
@@ -35,6 +36,12 @@
           <li><a href="{{ url_for('messages.index') }}"><i data-lucide="message-circle"></i><span>Messages</span></a></li>
           <li><a href="{{ url_for('analytics.index') }}"><i data-lucide="bar-chart-3"></i><span>Analytics</span></a></li>
         </ul>
+        {% if current_user.role == 'admin' %}
+        <p class="sidebar-section-title">ADMIN</p>
+        <ul class="sidebar-nav">
+          <li><a href="{{ url_for('admin.index') }}"><i data-lucide="shield"></i><span>Whitelist</span></a></li>
+        </ul>
+        {% endif %}
       </nav>
       <div class="sidebar-footer">
         <div class="user-chip">
@@ -105,6 +112,10 @@
 
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   <script>document.addEventListener('DOMContentLoaded',()=>{if(window.lucide)lucide.createIcons();});</script>
+  {% if current_user.is_authenticated and not current_user.has_seen_tour %}
+  <script src="https://cdn.jsdelivr.net/npm/shepherd.js@13.0.3/dist/js/shepherd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/tour.js') }}"></script>
+  {% endif %}
   {% block scripts %}{% endblock %}
 </body>
 </html>

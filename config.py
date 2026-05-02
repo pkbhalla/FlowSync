@@ -9,6 +9,11 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
+    # Google OAuth
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+    # Gemini AI
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 
 class DevelopmentConfig(Config):
     DEBUG = True

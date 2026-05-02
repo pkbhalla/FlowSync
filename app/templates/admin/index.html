@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Admin — Whitelist{% endblock %}
+{% block breadcrumb %}Admin{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h2 class="fw-600">Whitelist Invitations</h2>
+  <button class="btn btn-primary" data-modal-target="inviteModal"><i data-lucide="mail-plus" style="width:16px;height:16px"></i> New Invite</button>
+</div>
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Email</th><th>Project</th><th>Invited By</th><th>Status</th><th>Created</th></tr></thead>
+    <tbody>
+      {% for inv in invites %}
+      <tr>
+        <td class="fw-500 text-sm">{{ inv.email }}</td>
+        <td><span class="badge badge-primary">{{ inv.project.name }}</span></td>
+        <td class="text-sm">{{ inv.inviter.display_name }}</td>
+        <td>{% if inv.is_claimed %}<span class="badge badge-success">Claimed</span>{% else %}<span class="badge badge-warning">Pending</span>{% endif %}</td>
+        <td class="text-xs text-muted">{{ inv.created_at.strftime('%b %d, %H:%M') }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-3)">No invitations yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div id="inviteModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header"><h3>Create Whitelist Invite</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+    <div class="modal-body">
+      <form method="POST" action="{{ url_for('admin.create_invite') }}">
+        <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" placeholder="user@example.com" required></div>
+        <div class="form-group"><label class="form-label">Assign to Project</label>
+          <select name="project_id" class="form-select" required>
+            <option value="">Select...</option>
+            {% for p in projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Send Invite</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
