@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Projects{% endblock %}
+{% block breadcrumb %}Projects{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h2 class="fw-600">Projects</h2>
+  <button class="btn btn-primary" data-modal-target="createProjectModal"><i data-lucide="plus" style="width:16px;height:16px"></i> New Project</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+  {% for p in projects %}
+  <div class="card" style="display:flex;flex-direction:column">
+    <div class="card-body" style="flex:1">
+      <div class="flex items-center gap-3 mb-4">
+        <div style="width:14px;height:14px;border-radius:50%;background:{{ p.color }}"></div>
+        <a href="{{ url_for('projects.detail', id=p.id) }}" class="fw-600 text-sm" style="flex:1">{{ p.name }}</a>
+        <span class="badge badge-primary">{{ p.status }}</span>
+      </div>
+      <p class="text-sm text-muted" style="min-height:36px">{{ p.description }}</p>
+      <div class="flex items-center mt-4 gap-2">
+        <div class="flex" style="margin-right:auto">
+          {% for m in p.members[:4] %}
+          <div class="avatar" style="background:{{ m.avatar_color }};width:26px;height:26px;font-size:9px;margin-left:-6px;border:2px solid var(--surface)" title="{{ m.display_name }}">{{ m.avatar_initials }}</div>
+          {% endfor %}
+          {% if p.members|length > 4 %}<div class="avatar" style="background:var(--surface-hover);width:26px;height:26px;font-size:9px;margin-left:-6px;border:2px solid var(--surface);color:var(--text-2)">+{{ p.members|length - 4 }}</div>{% endif %}
+        </div>
+      </div>
+      {% set total = p.tasks.count() %}{% set done = p.tasks.filter_by(status='done').count() %}{% set pct = (done / total * 100)|int if total > 0 else 0 %}
+      <div class="mt-4">
+        <div class="flex items-center justify-between text-xs mb-2"><span class="text-muted">Progress</span><span class="fw-500">{{ pct }}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:{{ pct }}%;background:{{ p.color }}"></div></div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="card" style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text-3)">No projects yet.</div>
+  {% endfor %}
+</div>
+<div id="createProjectModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header"><h3>Create Project</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+    <div class="modal-body">
+      <form method="POST" action="{{ url_for('projects.create') }}">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-textarea" rows="3"></textarea></div>
+        <div class="form-group"><label class="form-label">Color</label><input type="color" name="color" value="#0e7c86" style="height:38px;width:100%;border:1px solid var(--border);border-radius:var(--radius-sm)"></div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Create</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

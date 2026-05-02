@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}FlowSync{% endblock %} — FlowSync</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  {% block head %}{% endblock %}
+</head>
+<body data-user-id="{{ current_user.id if current_user.is_authenticated else '' }}">
+  <div id="toast-container"></div>
+
+  {% if current_user.is_authenticated %}
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-mark"><i data-lucide="activity"></i></div>
+        <span class="logo-text">FlowSync</span>
+      </div>
+      <nav class="sidebar-content">
+        <p class="sidebar-section-title">MAIN</p>
+        <ul class="sidebar-nav">
+          <li><a href="{{ url_for('dashboard.index') }}"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a></li>
+          <li><a href="{{ url_for('tasks.index') }}"><i data-lucide="check-square"></i><span>Tasks</span></a></li>
+          <li><a href="{{ url_for('projects.index') }}"><i data-lucide="folder"></i><span>Projects</span></a></li>
+          <li><a href="{{ url_for('team.index') }}"><i data-lucide="users"></i><span>Team</span></a></li>
+        </ul>
+        <p class="sidebar-section-title">TOOLS</p>
+        <ul class="sidebar-nav">
+          <li><a href="{{ url_for('messages.index') }}"><i data-lucide="message-circle"></i><span>Messages</span></a></li>
+          <li><a href="{{ url_for('analytics.index') }}"><i data-lucide="bar-chart-3"></i><span>Analytics</span></a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <div class="avatar" style="background-color: {{ current_user.avatar_color }}">{{ current_user.avatar_initials }}</div>
+          <div class="user-chip-info">
+            <span class="user-chip-name">{{ current_user.display_name }}</span>
+            <span class="user-chip-role">{{ current_user.role }}</span>
+          </div>
+          <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i data-lucide="log-out"></i></a>
+        </div>
+      </div>
+    </aside>
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="sidebar-toggle" class="icon-btn mobile-only"><i data-lucide="menu"></i></button>
+          <h1 class="page-title">{% block breadcrumb %}Dashboard{% endblock %}</h1>
+        </div>
+        <div class="topbar-right">
+          <button id="theme-toggle" class="icon-btn" title="Toggle Theme"><i data-lucide="sun-moon"></i></button>
+          <button class="btn btn-primary btn-new-task" data-modal-target="createTaskModal"><i data-lucide="plus" style="width:16px;height:16px"></i> New Task</button>
+        </div>
+      </header>
+      <main class="content" id="main-content">
+        {% with msgs = get_flashed_messages(with_categories=true) %}
+          {% for category, msg in msgs %}
+            <script>document.addEventListener('DOMContentLoaded',()=>showToast("{{ msg }}","{{ category }}"));</script>
+          {% endfor %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  <!-- Global Create Task Modal -->
+  <div id="createTaskModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header"><h3>Create New Task</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+      <div class="modal-body">
+        <form id="create-task-form">
+          <div class="form-group"><label class="form-label">Title</label><input type="text" id="task-title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Project</label><select id="task-project" class="form-select" required><option value="">Select Project...</option></select></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Priority</label><select id="task-priority" class="form-select"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
+            <div class="form-group"><label class="form-label">Due Date</label><input type="date" id="task-due" class="form-input"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Description</label><textarea id="task-desc" class="form-textarea" rows="3"></textarea></div>
+          <button type="button" onclick="submitGlobalTask()" class="btn btn-primary" style="width:100%">Create Task</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+  async function submitGlobalTask(){const t=document.getElementById('task-title').value,p=document.getElementById('task-project').value;if(!t||!p){showToast('Title and Project required','error');return;}try{await apiFetch('/tasks/create',{method:'POST',body:JSON.stringify({title:t,project_id:p,priority:document.getElementById('task-priority').value,due_date:document.getElementById('task-due').value,description:document.getElementById('task-desc').value})});showToast('Task created');closeModal('createTaskModal');document.getElementById('create-task-form').reset();if(location.pathname.includes('/tasks'))location.reload();}catch(e){}}
+  document.addEventListener('DOMContentLoaded',async()=>{const s=document.getElementById('task-project');if(s){try{const p=await apiFetch('/api/v1/projects');p.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=x.name;s.appendChild(o)})}catch(e){}}});
+  </script>
+
+  {% else %}
+  {# ---- Unauthenticated layout ---- #}
+  <div class="auth-page">
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for category, msg in msgs %}
+        <div class="auth-flash badge badge-{{ category }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block auth_content %}{% endblock %}
+  </div>
+  {% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script>if(window.lucide)lucide.createIcons();</script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

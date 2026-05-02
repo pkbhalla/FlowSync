@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Team{% endblock %}
+{% block breadcrumb %}Team{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h2 class="fw-600">Team Members</h2>
+  {% if current_user.role == 'admin' %}<button class="btn btn-primary" data-modal-target="inviteMemberModal"><i data-lucide="user-plus" style="width:16px;height:16px"></i> Invite</button>{% endif %}
+</div>
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Member</th><th>Role</th><th>Open Tasks</th><th>Completion</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td><div class="flex items-center gap-3"><div class="avatar" style="background:{{ user.avatar_color }}">{{ user.avatar_initials }}</div><div><div class="fw-500 text-sm">{{ user.display_name }}</div><div class="text-xs text-muted">{{ user.email }}</div></div></div></td>
+        <td><span class="badge {% if user.role == 'admin' %}badge-purple{% else %}badge-neutral{% endif %}">{{ user.role }}</span></td>
+        <td><div class="flex items-center gap-2"><span class="fw-500 text-sm">{{ user.open_tasks }}</span><div class="progress-bar" style="width:80px"><div class="progress-fill" style="width:{{ (user.open_tasks / 15 * 100) if user.open_tasks <= 15 else 100 }}%;background:var(--orange)"></div></div></div></td>
+        <td><span class="fw-500 text-sm">{{ user.completion_rate|int }}%</span></td>
+        <td><span class="badge badge-success">Active</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if current_user.role == 'admin' %}
+<div id="inviteMemberModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header"><h3>Invite Member</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+    <div class="modal-body">
+      <form method="POST" action="{{ url_for('team.invite') }}">
+        <div class="form-group"><label class="form-label">Display Name</label><input type="text" name="display_name" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Username</label><input type="text" name="username" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Temporary Password</label><input type="password" name="password" class="form-input" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Create User</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

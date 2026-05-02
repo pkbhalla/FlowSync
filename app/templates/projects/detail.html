@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }}{% endblock %}
+{% block breadcrumb %}{{ project.name }}{% endblock %}
+{% block content %}
+<div class="flex items-center gap-3 mb-6">
+  <div style="width:20px;height:20px;border-radius:50%;background:{{ project.color }}"></div>
+  <h2 class="fw-600" style="font-size:20px">{{ project.name }}</h2>
+  <span class="badge badge-primary">{{ project.status }}</span>
+</div>
+<p class="text-muted mb-6">{{ project.description }}</p>
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+  <div>
+    <h3 class="fw-600 mb-4">Milestones</h3>
+    <div class="card">
+      <div class="card-body">
+        {% if project.milestones.count() > 0 %}
+        <div style="border-left:2px solid var(--divider);padding-left:20px;margin-left:8px">
+          {% for m in project.milestones %}
+          <div style="position:relative;margin-bottom:20px">
+            <div style="position:absolute;left:-29px;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid {% if m.status=='completed' %}var(--success){% else %}var(--border){% endif %};background:{% if m.status=='completed' %}var(--success){% else %}var(--surface){% endif %}"></div>
+            <div class="fw-500 text-sm">{{ m.title }} <span class="badge badge-{% if m.status=='completed' %}success{% elif m.status=='active' %}blue{% else %}neutral{% endif %}" style="margin-left:6px">{{ m.status }}</span></div>
+            <div class="text-xs text-muted mt-2">{{ m.description }}</div>
+            <div class="text-xs text-muted" style="margin-top:4px">Due: {{ m.due_date }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;color:var(--text-3);padding:20px">No milestones defined.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div>
+    <h3 class="fw-600 mb-4">Task Breakdown</h3>
+    <div class="card mb-4">
+      <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+        <div class="flex items-center justify-between text-sm"><span>Backlog</span><span class="badge badge-neutral">{{ task_counts.backlog }}</span></div>
+        <div class="flex items-center justify-between text-sm"><span>In Progress</span><span class="badge badge-blue">{{ task_counts.in_progress }}</span></div>
+        <div class="flex items-center justify-between text-sm"><span>In Review</span><span class="badge badge-orange">{{ task_counts.in_review }}</span></div>
+        <div class="flex items-center justify-between text-sm"><span>Done</span><span class="badge badge-success">{{ task_counts.done }}</span></div>
+      </div>
+    </div>
+    <div class="flex items-center justify-between mb-4"><h3 class="fw-600">Team</h3><button class="btn btn-sm btn-secondary" data-modal-target="addMemberModal">Add</button></div>
+    <div class="card">
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+        {% for member in project.members %}
+        <div class="flex items-center gap-3">
+          <div class="avatar" style="background:{{ member.avatar_color }}">{{ member.avatar_initials }}</div>
+          <span class="fw-500 text-sm">{{ member.display_name }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<div id="addMemberModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header"><h3>Add Member</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+    <div class="modal-body">
+      <form method="POST" action="{{ url_for('projects.add_member', id=project.id) }}">
+        <div class="form-group"><label class="form-label">User</label><select name="user_id" class="form-select" required><option value="">Select...</option>{% for u in users %}<option value="{{ u.id }}">{{ u.display_name }}</option>{% endfor %}</select></div>
+        <div class="form-group"><label class="form-label">Role</label><select name="role" class="form-select"><option value="member">Member</option><option value="lead">Lead</option></select></div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Add</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

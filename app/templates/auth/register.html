@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block auth_content %}
+<div class="auth-card">
+  <div class="logo-row"><div class="logo-mark"><i data-lucide="activity"></i></div><span class="logo-text">FlowSync</span></div>
+  <p class="auth-subtitle">Create your account</p>
+  <form method="POST" action="{{ url_for('auth.register') }}">
+    <div class="form-group"><label class="form-label">Display Name</label><input type="text" name="display_name" class="form-input" placeholder="Jane Doe" required></div>
+    <div class="form-group"><label class="form-label">Username</label><input type="text" name="username" class="form-input" placeholder="janedoe" required></div>
+    <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" placeholder="you@iitm.ac.in" required></div>
+    <div class="form-group"><label class="form-label">Password</label><input type="password" name="password" class="form-input" placeholder="••••••••" required></div>
+    <button type="submit" class="btn btn-primary" style="width:100%;padding:11px">Create Account</button>
+  </form>
+  <p class="auth-footer">Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a></p>
+</div>
+{% endblock %}

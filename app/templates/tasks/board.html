@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Tasks{% endblock %}
+{% block breadcrumb %}Tasks{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <select id="task-filter" class="form-select" style="width:180px">
+    <option value="all">All Tasks</option>
+    <option value="my_tasks">My Tasks</option>
+    <option value="high_priority">High Priority</option>
+    <option value="overdue">Overdue</option>
+  </select>
+</div>
+<div class="kanban-board">
+  {% set columns = [('backlog','Backlog',backlog),('in_progress','In Progress',in_progress),('in_review','In Review',in_review),('done','Done',done)] %}
+  {% for status,title,items in columns %}
+  <div class="kanban-col" data-status="{{ status }}">
+    <div class="kanban-col-header">
+      <span>{{ title }}</span>
+      <span class="badge badge-neutral">{{ items|length }}</span>
+    </div>
+    <div class="kanban-col-body">
+      {% for task in items %}
+      <div class="task-card" draggable="true" data-task-id="{{ task.id }}" data-status="{{ task.status }}" data-assignee="{{ task.assignee_id }}" data-priority="{{ task.priority }}" data-overdue="{{ 'true' if task.is_overdue() else 'false' }}">
+        <div class="task-project-badge"><div class="task-project-dot" style="background:{{ task.project.color }}"></div>{{ task.project.name }}
+          {% if task.priority in ['high','critical'] %}<i data-lucide="alert-circle" style="width:12px;height:12px;color:var(--error);margin-left:auto"></i>{% endif %}
+        </div>
+        <div class="task-title">{{ task.title }}</div>
+        <div class="task-meta">
+          <span class="{% if task.is_overdue() %}text-danger{% endif %}">{{ task.due_date.strftime('%b %d') if task.due_date else 'No date' }}</span>
+          {% if task.assignee %}
+          <div class="avatar" style="background:{{ task.assignee.avatar_color }};width:22px;height:22px;font-size:9px" title="{{ task.assignee.display_name }}">{{ task.assignee.avatar_initials }}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/kanban.js') }}"></script>{% endblock %}

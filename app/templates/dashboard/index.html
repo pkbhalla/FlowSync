@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="kpi-grid mb-6">
+  <div class="card kpi-card">
+    <div class="kpi-icon" style="background:var(--primary-bg);color:var(--primary)"><i data-lucide="list-checks"></i></div>
+    <span class="kpi-title">Total Tasks</span>
+    <span class="kpi-value">{{ total_tasks }}</span>
+  </div>
+  <div class="card kpi-card">
+    <div class="kpi-icon" style="background:var(--blue-bg);color:var(--blue)"><i data-lucide="loader"></i></div>
+    <span class="kpi-title">In Progress</span>
+    <span class="kpi-value" style="color:var(--blue)">{{ in_progress }}</span>
+  </div>
+  <div class="card kpi-card">
+    <div class="kpi-icon" style="background:var(--error-bg);color:var(--error)"><i data-lucide="alert-triangle"></i></div>
+    <span class="kpi-title">Overdue</span>
+    <span class="kpi-value" style="color:var(--error)">{{ overdue }}</span>
+  </div>
+  <div class="card kpi-card">
+    <div class="kpi-icon" style="background:var(--success-bg);color:var(--success)"><i data-lucide="check-circle-2"></i></div>
+    <span class="kpi-title">Done This Week</span>
+    <span class="kpi-value" style="color:var(--success)">{{ completed_this_week }}</span>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+  <div>
+    <h3 class="fw-600 mb-4">My Tasks</h3>
+    {% if my_tasks %}
+    <div style="display:flex;flex-direction:column;gap:10px">
+      {% for task in my_tasks %}
+      <div class="card" style="padding:14px 18px">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="fw-500 text-sm">{{ task.title }}</div>
+            <div class="text-xs text-muted" style="margin-top:2px">{{ task.project.name }}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            {% if task.is_overdue() %}<span class="badge badge-error">Overdue</span>{% endif %}
+            <span class="badge badge-neutral">{{ task.due_date }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="padding:32px;text-align:center;color:var(--text-3)">
+      <i data-lucide="inbox" style="width:32px;height:32px;margin-bottom:8px"></i>
+      <p>No upcoming tasks — you're all caught up!</p>
+    </div>
+    {% endif %}
+
+    <h3 class="fw-600 mt-6 mb-4">Projects</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      {% for project in projects %}
+      <div class="card" style="padding:14px 18px">
+        <div class="flex items-center gap-3">
+          <div style="width:12px;height:12px;border-radius:50%;background:{{ project.color }}"></div>
+          <span class="fw-500 text-sm">{{ project.name }}</span>
+          <span class="badge badge-primary" style="margin-left:auto">{{ project.status }}</span>
+          <a href="{{ url_for('projects.detail', id=project.id) }}" class="btn btn-ghost btn-sm">View →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <h3 class="fw-600 mb-4">Activity</h3>
+    <div class="card">
+      <div class="card-body" style="max-height:600px;overflow-y:auto">
+        {% if activity_feed %}
+        {% for a in activity_feed %}
+        <div style="padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--divider)">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="avatar" style="background:{{ a.user.avatar_color if a.user else '#666' }};width:24px;height:24px;font-size:10px">{{ a.user.avatar_initials if a.user else '?' }}</div>
+            <span class="fw-500 text-xs">{{ a.user.display_name if a.user else 'Unknown' }}</span>
+            <span class="text-xs text-muted" style="margin-left:auto">{{ a.created_at.strftime('%b %d, %H:%M') }}</span>
+          </div>
+          <div class="text-sm">
+            {% if a.action_type == 'task_created' %}Created <strong>{{ a.metadata_.task_title }}</strong>
+            {% elif a.action_type == 'task_moved' %}Moved <strong>{{ a.metadata_.task_title }}</strong> → {{ a.metadata_.new_status }}
+            {% else %}{{ a.action_type }}{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="text-align:center;color:var(--text-3);padding:20px">No activity yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
