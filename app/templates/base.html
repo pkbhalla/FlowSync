@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}FlowSync{% endblock %} — FlowSync</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,18 +77,18 @@
     </div>
   </div>
   <!-- Global Create Task Modal -->
-  <div id="createTaskModal" class="modal-backdrop">
+  <div id="createTaskModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="createTaskModalTitle">
     <div class="modal">
-      <div class="modal-header"><h3>Create New Task</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+      <div class="modal-header"><h3 id="createTaskModalTitle">Create New Task</h3><button type="button" class="icon-btn" data-modal-close aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button></div>
       <div class="modal-body">
         <form id="create-task-form">
-          <div class="form-group"><label class="form-label">Title</label><input type="text" id="task-title" class="form-input" required></div>
-          <div class="form-group"><label class="form-label">Project</label><select id="task-project" class="form-select" required><option value="">Select Project...</option></select></div>
+          <div class="form-group"><label class="form-label" for="task-title">Title</label><input type="text" id="task-title" name="task-title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label" for="task-project">Project</label><select id="task-project" name="task-project" class="form-select" required><option value="">Select Project...</option></select></div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">Priority</label><select id="task-priority" class="form-select"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
-            <div class="form-group"><label class="form-label">Due Date</label><input type="date" id="task-due" class="form-input"></div>
+            <div class="form-group"><label class="form-label" for="task-priority">Priority</label><select id="task-priority" name="task-priority" class="form-select"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
+            <div class="form-group"><label class="form-label" for="task-due">Due Date</label><input type="date" id="task-due" name="task-due" class="form-input"></div>
           </div>
-          <div class="form-group"><label class="form-label">Description</label><textarea id="task-desc" class="form-textarea" rows="3"></textarea></div>
+          <div class="form-group"><label class="form-label" for="task-desc">Description</label><textarea id="task-desc" name="task-desc" class="form-textarea" rows="3"></textarea></div>
           <button type="button" onclick="submitGlobalTask()" class="btn btn-primary" style="width:100%">Create Task</button>
         </form>
       </div>

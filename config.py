@@ -29,8 +29,16 @@ class ProductionConfig(Config):
         if uri and uri.startswith('postgres://'):
             cls.SQLALCHEMY_DATABASE_URI = uri.replace('postgres://', 'postgresql://', 1)
 
+class TestingConfig(Config):
+    TESTING = True
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    WTF_CSRF_ENABLED = False
+    SECRET_KEY = 'test-secret-key'
+
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'testing': TestingConfig,
     'default': DevelopmentConfig
 }

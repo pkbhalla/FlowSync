@@ -35,11 +35,12 @@
   <div class="card" style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text-3)">No projects yet.</div>
   {% endfor %}
 </div>
-<div id="createProjectModal" class="modal-backdrop">
+<div id="createProjectModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="createProjectModalTitle">
   <div class="modal">
-    <div class="modal-header"><h3>Create Project</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+    <div class="modal-header"><h3 id="createProjectModalTitle">Create Project</h3><button type="button" class="icon-btn" data-modal-close aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button></div>
     <div class="modal-body">
       <form method="POST" action="{{ url_for('projects.create') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-input" required></div>
         <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-textarea" rows="3"></textarea></div>
         <div class="form-group"><label class="form-label">Color</label><input type="color" name="color" value="#0e7c86" style="height:38px;width:100%;border:1px solid var(--border);border-radius:var(--radius-sm)"></div>

@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from sqlalchemy import func
 from app import db
 from app.team import team_bp
 from app.models import User, Task
@@ -8,10 +9,31 @@ from app.models import User, Task
 @login_required
 def index():
     users = User.query.all()
+
+    # Fetch all task counts in two queries instead of N×2
+    in_progress_counts = dict(
+        db.session.query(Task.assignee_id, func.count(Task.id))
+        .filter(Task.status == 'in_progress', Task.assignee_id.isnot(None))
+        .group_by(Task.assignee_id)
+        .all()
+    )
+    total_counts = dict(
+        db.session.query(Task.assignee_id, func.count(Task.id))
+        .filter(Task.assignee_id.isnot(None))
+        .group_by(Task.assignee_id)
+        .all()
+    )
+    done_counts = dict(
+        db.session.query(Task.assignee_id, func.count(Task.id))
+        .filter(Task.status == 'done', Task.assignee_id.isnot(None))
+        .group_by(Task.assignee_id)
+        .all()
+    )
+
     for u in users:
-        u.open_tasks = Task.query.filter(Task.assignee_id == u.id, Task.status == 'in_progress').count()
-        total = Task.query.filter(Task.assignee_id == u.id).count()
-        done = Task.query.filter(Task.assignee_id == u.id, Task.status == 'done').count()
+        u.open_tasks = in_progress_counts.get(u.id, 0)
+        total = total_counts.get(u.id, 0)
+        done = done_counts.get(u.id, 0)
         u.completion_rate = (done / total * 100) if total > 0 else 0
     return render_template('team/index.html', users=users)
 

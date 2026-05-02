@@ -54,13 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tour.on('complete', async () => {
         try {
-            await fetch('/api/v1/users/finish-tour', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            await fetch('/api/v1/users/finish-tour', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}) } });
         } catch (e) {}
     });
 
     tour.on('cancel', async () => {
         try {
-            await fetch('/api/v1/users/finish-tour', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            await fetch('/api/v1/users/finish-tour', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}) } });
         } catch (e) {}
     });
 

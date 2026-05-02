@@ -126,10 +126,14 @@ function showToast(message, type = 'success') {
 
 async function apiFetch(url, options = {}) {
     try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const method = (options.method || 'GET').toUpperCase();
+        const mutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
         const response = await fetch(url, {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
+                ...(mutating && csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
                 ...options.headers
             }
         });

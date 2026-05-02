@@ -31,7 +31,9 @@ def index():
 @login_required
 def channel(channel_id):
     channels = Channel.query.all()
-    active_channel = Channel.query.get_or_404(channel_id)
+    active_channel = db.session.get(Channel, channel_id)
+    if active_channel is None:
+        return jsonify({'error': 'Channel not found'}), 404
     msgs = active_channel.messages.order_by(Message.created_at.asc()).limit(50).all()
     users = User.query.all()
     return render_template('messages/index.html', channels=channels, active_channel=active_channel, messages=msgs, users=users)

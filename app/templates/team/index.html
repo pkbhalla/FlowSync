@@ -7,8 +7,8 @@
   {% if current_user.role == 'admin' %}<button class="btn btn-primary" data-modal-target="inviteMemberModal"><i data-lucide="user-plus" style="width:16px;height:16px"></i> Invite</button>{% endif %}
 </div>
 <div class="card">
-  <table class="data-table">
-    <thead><tr><th>Member</th><th>Role</th><th>Open Tasks</th><th>Completion</th><th>Status</th></tr></thead>
+  <table class="data-table" aria-label="Team members">
+    <thead><tr><th scope="col">Member</th><th scope="col">Role</th><th scope="col">Open Tasks</th><th scope="col">Completion</th><th scope="col">Status</th></tr></thead>
     <tbody>
       {% for user in users %}
       <tr>
@@ -23,11 +23,12 @@
   </table>
 </div>
 {% if current_user.role == 'admin' %}
-<div id="inviteMemberModal" class="modal-backdrop">
+<div id="inviteMemberModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="inviteMemberModalTitle">
   <div class="modal">
-    <div class="modal-header"><h3>Invite Member</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+    <div class="modal-header"><h3 id="inviteMemberModalTitle">Invite Member</h3><button type="button" class="icon-btn" data-modal-close aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button></div>
     <div class="modal-body">
       <form method="POST" action="{{ url_for('team.invite') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group"><label class="form-label">Display Name</label><input type="text" name="display_name" class="form-input" required></div>
         <div class="form-group"><label class="form-label">Username</label><input type="text" name="username" class="form-input" required></div>
         <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" required></div>

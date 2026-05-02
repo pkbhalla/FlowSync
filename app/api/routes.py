@@ -55,7 +55,9 @@ def ai_breakdown_task():
     task_id = data.get('task_id')
     if not task_id:
         return jsonify({'error': 'task_id required'}), 400
-    task = Task.query.get_or_404(task_id)
+    task = db.session.get(Task, task_id)
+    if task is None:
+        return jsonify({'error': 'Task not found'}), 404
     subtask_defs = generate_subtasks(task.title, task.description or '')
     if not subtask_defs:
         return jsonify({'error': 'AI not configured or generation failed'}), 503
@@ -85,7 +87,9 @@ def ai_breakdown_task():
 def ai_summarize_chat(channel_id):
     """Summarize the last 50 messages in a channel using Gemini."""
     from app.ai import summarize_chat
-    channel = Channel.query.get_or_404(channel_id)
+    channel = db.session.get(Channel, channel_id)
+    if channel is None:
+        return jsonify({'error': 'Channel not found'}), 404
     msgs = channel.messages.order_by(Message.created_at.desc()).limit(50).all()
     msgs.reverse()
     message_list = [{'sender': m.sender.display_name, 'content': m.content} for m in msgs]

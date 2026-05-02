@@ -9,9 +9,11 @@ from app.models import Task, Project, ActivityLog, User, db
 @dashboard_bp.route('/')
 def index():
     if not current_user.is_authenticated:
-        return render_template('landing.html')
+        from flask import current_app
+        has_google = current_app.config.get('GOOGLE_CLIENT_ID') is not None
+        return render_template('landing.html', has_google=has_google)
         
-    now = datetime.now().date()
+    now = datetime.now(timezone.utc).date()
     start_of_week = now - timedelta(days=now.weekday())
 
     # Single query for all KPI counts

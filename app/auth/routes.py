@@ -1,5 +1,6 @@
-import hashlib, random
-from flask import render_template, redirect, url_for, flash, request, session, current_app
+import random
+from urllib.parse import urlparse
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, current_user
 from authlib.integrations.flask_client import OAuth
 from app import db
@@ -38,6 +39,11 @@ def login():
             return redirect(url_for('auth.login'))
         login_user(user, remember=True)
         next_page = request.args.get('next')
+        # Prevent open-redirect: only allow relative paths within the app
+        if next_page:
+            parsed = urlparse(next_page)
+            if parsed.netloc or parsed.scheme:
+                next_page = None
         return redirect(next_page or url_for('dashboard.index'))
     has_google = current_app.config.get('GOOGLE_CLIENT_ID') is not None
     return render_template('auth/login.html', has_google=has_google)
@@ -55,8 +61,8 @@ def google_login():
 def google_callback():
     try:
         token = oauth.google.authorize_access_token()
-    except Exception as e:
-        flash(f'Google auth failed: {e}', 'error')
+    except Exception:
+        flash('Google authentication failed. Please try again.', 'error')
         return redirect(url_for('auth.login'))
 
     userinfo = token.get('userinfo')
@@ -66,6 +72,12 @@ def google_callback():
 
     google_id = userinfo['sub']
     email = userinfo['email']
+
+    # Reject unverified email addresses
+    if not userinfo.get('email_verified', False):
+        flash('Your Google email address is not verified. Please verify it and try again.', 'error')
+        return redirect(url_for('auth.login'))
+
     name = userinfo.get('name', email.split('@')[0])
 
     # Check if user already exists (by google_id or email)

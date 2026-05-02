@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Access Forbidden{% endblock %}
+
+{% block content %}
+<div class="card" style="margin: 0 auto; max-width: 500px; text-align: center; padding: var(--space-8);">
+    <h1 style="font-size: var(--text-xl); font-family: var(--font-display); margin-bottom: var(--space-2); color: var(--color-error);">403</h1>
+    <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4);">Access Forbidden</h2>
+    <p style="color: var(--color-text-muted); margin-bottom: var(--space-6);">You do not have permission to access this page.</p>
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">Go to Dashboard</a>
+</div>
+{% endblock %}

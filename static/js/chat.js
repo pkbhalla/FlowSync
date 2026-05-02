@@ -48,18 +48,40 @@ document.addEventListener('DOMContentLoaded', () => {
     function appendMessage(msg) {
         const div = document.createElement('div');
         div.className = 'message-item';
-        div.innerHTML = `
-            <div class="avatar" style="background-color: ${msg.sender.avatar_color}">
-                ${msg.sender.avatar_initials}
-            </div>
-            <div class="message-content">
-                <div class="message-header">
-                    <span class="message-author">${msg.sender.display_name}</span>
-                    <span class="message-time">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>
-                <div class="message-text">${msg.content}</div>
-            </div>
-        `;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.style.backgroundColor = msg.sender.avatar_color;
+        avatar.textContent = msg.sender.avatar_initials;
+        avatar.setAttribute('aria-hidden', 'true');
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'message-header';
+
+        const authorSpan = document.createElement('span');
+        authorSpan.className = 'message-author';
+        authorSpan.textContent = msg.sender.display_name;
+
+        const timeEl = document.createElement('time');
+        timeEl.className = 'message-time';
+        timeEl.dateTime = msg.created_at;
+        timeEl.textContent = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+        headerDiv.appendChild(authorSpan);
+        headerDiv.appendChild(timeEl);
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'message-text';
+        textDiv.textContent = msg.content;
+
+        contentDiv.appendChild(headerDiv);
+        contentDiv.appendChild(textDiv);
+
+        div.appendChild(avatar);
+        div.appendChild(contentDiv);
         chatContainer.appendChild(div);
     }
 

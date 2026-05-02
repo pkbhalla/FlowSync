@@ -1,12 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 from config import config
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
+csrf = CSRFProtect()
 
 import os
 
@@ -22,6 +24,7 @@ def create_app(config_name='default'):
 
     db.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
 
     # Init Google OAuth
     from app.auth.routes import init_oauth

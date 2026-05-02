@@ -29,7 +29,7 @@ def create():
     data = request.json
     try:
         due_date = datetime.strptime(data.get('due_date'), '%Y-%m-%d').date() if data.get('due_date') else None
-    except:
+    except ValueError:
         due_date = None
 
     task = Task(
@@ -60,7 +60,9 @@ def create():
 @tasks_bp.route('/<int:id>/update-status', methods=['POST'])
 @login_required
 def update_status(id):
-    task = Task.query.get_or_404(id)
+    task = db.session.get(Task, id)
+    if task is None:
+        return jsonify({'error': 'Task not found'}), 404
     data = request.json
     new_status = data.get('status')
     if new_status in ['backlog', 'in_progress', 'in_review', 'done'] and task.status != new_status:
@@ -87,13 +89,19 @@ def update_status(id):
 @tasks_bp.route('/<int:id>', methods=['GET'])
 @login_required
 def get_task(id):
-    task = Task.query.get_or_404(id)
+    task = db.session.get(Task, id)
+    if task is None:
+        return jsonify({'error': 'Task not found'}), 404
     return jsonify(task.to_dict())
 
 @tasks_bp.route('/<int:id>', methods=['DELETE'])
 @login_required
 def delete_task(id):
-    task = Task.query.get_or_404(id)
+    task = db.session.get(Task, id)
+    if task is None:
+        return jsonify({'error': 'Task not found'}), 404
+    if task.reporter_id != current_user.id and current_user.role != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
     db.session.delete(task)
     db.session.commit()
     return jsonify({'success': True})

@@ -7,8 +7,8 @@
   <button class="btn btn-primary" data-modal-target="inviteModal"><i data-lucide="mail-plus" style="width:16px;height:16px"></i> New Invite</button>
 </div>
 <div class="card">
-  <table class="data-table">
-    <thead><tr><th>Email</th><th>Project</th><th>Invited By</th><th>Status</th><th>Created</th></tr></thead>
+  <table class="data-table" aria-label="Whitelist invitations">
+    <thead><tr><th scope="col">Email</th><th scope="col">Project</th><th scope="col">Invited By</th><th scope="col">Status</th><th scope="col">Created</th></tr></thead>
     <tbody>
       {% for inv in invites %}
       <tr>
@@ -24,11 +24,12 @@
     </tbody>
   </table>
 </div>
-<div id="inviteModal" class="modal-backdrop">
+<div id="inviteModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="inviteModalTitle">
   <div class="modal">
-    <div class="modal-header"><h3>Create Whitelist Invite</h3><button class="icon-btn" data-modal-close><i data-lucide="x"></i></button></div>
+    <div class="modal-header"><h3 id="inviteModalTitle">Create Whitelist Invite</h3><button type="button" class="icon-btn" data-modal-close aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button></div>
     <div class="modal-body">
       <form method="POST" action="{{ url_for('admin.create_invite') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" placeholder="user@example.com" required></div>
         <div class="form-group"><label class="form-label">Assign to Project</label>
           <select name="project_id" class="form-select" required>

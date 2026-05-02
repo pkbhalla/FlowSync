@@ -39,7 +39,10 @@ def create():
 @projects_bp.route('/<int:id>', methods=['GET'])
 @login_required
 def detail(id):
-    project = Project.query.get_or_404(id)
+    project = db.session.get(Project, id)
+    if project is None:
+        from flask import abort
+        abort(404)
     users = User.query.all()
     # counts
     task_counts = {
@@ -53,7 +56,10 @@ def detail(id):
 @projects_bp.route('/<int:id>/add-member', methods=['POST'])
 @login_required
 def add_member(id):
-    project = Project.query.get_or_404(id)
+    project = db.session.get(Project, id)
+    if project is None:
+        from flask import abort
+        abort(404)
     user_id = request.form.get('user_id')
     role = request.form.get('role', 'member')
     

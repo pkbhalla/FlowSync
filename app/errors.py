@@ -11,4 +11,4 @@ def register_error_handlers(app):
 
     @app.errorhandler(403)
     def forbidden(e):
-        return render_template('errors/404.html'), 403 # Reuse 404 template or create 403
+        return render_template('errors/403.html'), 403

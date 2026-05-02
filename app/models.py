@@ -10,7 +10,7 @@ from app import db, login_manager
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 # To support JSON on sqlite as fallback
 class JSONEncodedDict(TypeDecorator):
@@ -136,7 +136,7 @@ class Task(db.Model):
 
     def is_overdue(self):
         if self.due_date and self.status != 'done':
-            return self.due_date < datetime.now().date()
+            return self.due_date < datetime.now(timezone.utc).date()
         return False
 
     def to_dict(self):
